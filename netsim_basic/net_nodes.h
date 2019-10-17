@@ -22,6 +22,9 @@ protected:
     // used network
     basicnetwork& net;
 
+    // internal method if connections need to be bidirectional
+    virtual bool requestConnection(node& source, uint32_t tag) = 0;
+
 public:
     // substitute for ip adress
     const uint32_t id;
@@ -32,14 +35,14 @@ public:
     // creation by moving or new is allowed
     node(basicnetwork& net, simulator& sim, nodeid id) : net(net), sim(sim), id(id) {};
     // moving will keep the ID intact
-    node(node&& n) : net(n.net), sim(n.sim), id(n.id) noexcept {};
+    node(node&& n) noexcept : net(n.net), sim(n.sim), id(n.id) {};
 
     virtual ~node() = default;
 
     // Management protocol specific functions
     // tags allow for different connection buckets
     virtual bool addConnection(node& target, uint32_t tag) = 0;
-    virtual bool hasConnection(node& n, uint32_t tag) = 0;
+    virtual bool hasConnection(node& target, uint32_t tag) = 0;
     virtual size_t amountConnections(uint32_t tag) = 0;
 
     // Communication protocol logic

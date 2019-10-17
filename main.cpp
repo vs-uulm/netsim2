@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "experiments/node3pp.h"
 #include "examples/basic_example.h"
 
 int main(int argc, char *argv[]) {

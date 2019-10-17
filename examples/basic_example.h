@@ -8,6 +8,7 @@
 #include "../netsim_basic/net_edge_models.h"
 
 namespace examples {
+    // -------------------- NAMESPACE BEGIN --------------------------------
 
     // To create our protocol for the network we have to derive a node from the basic node class
     class mynode : public node {
@@ -22,26 +23,35 @@ namespace examples {
         // mynode(basicnetwork& net, simulator& sim, nodeid id) : node(net, sim, id) {
         //
         // }
+    protected:
+        virtual bool requestConnection(node &source, uint32_t tag) override {
+            return true;
+        }
+
+    public:
 
         // Management protocol specific functions
         // tags allow for different connection buckets
-        virtual bool addConnection(node& target, uint32_t tag){
+        virtual bool addConnection(node& target, uint32_t tag) override {
+            // this will generate a directed graph
+            // as nodes are not informed of them receiving a connection
+            // we would have to call requestConnection
             if(this->hasConnection(target, tag))
                 return false;
             connections.emplace(target.id, target);
             return true;
         };
-        virtual bool hasConnection(node& target, uint32_t tag) {
+        virtual bool hasConnection(node& target, uint32_t tag) override {
             if(connections.count(target.id)>0)
                 return true;
             return false;
         };
-        virtual size_t amountConnections(uint32_t tag){
+        virtual size_t amountConnections(uint32_t tag) override {
             return connections.size();
         };
 
         // Communication protocol logic
-        virtual void receiveMessage(message m){
+        virtual void receiveMessage(message m) override {
             // We create a simple TTL message thats forwarded to the first entry in the connections bucket
             sim.log(std::to_string(m.to)+" received message from "+std::to_string(m.from)+" with a TTL of "+std::to_string(m.payload));
             if(m.payload>0 && m.messagetype == 0) {
@@ -59,8 +69,8 @@ namespace examples {
                         ,delay);
             }
         };
-        virtual void startProtocol(){
-            message m(this->id,this->connections.begin()->second.get().id,5,0);
+        virtual void startProtocol() override {
+            message m(this->id,this->connections.begin()->second.get().id,0,5);
             net.sendMessage(m);
         };
 
@@ -74,11 +84,14 @@ namespace examples {
         network<mynode> net(true, strategies, 100, constModel<10>);
 
         // We initialize the protocol on the first 4 nodes and make sure there are at least 4 nodes
-        auto id_limit = net.getNodeidLimit();
-        assert(3<id_limit);
-        net.startProtocolOn({0, 1,2,3});
+        //auto id_limit = net.getNodeidLimit();
+        //assert(3<id_limit);
+        //net.startProtocolOn({0, 1,2,3});
+
+        // alternatively call startProtocolOnAll
+        net.startProtocolOnAll();
 
         // finally we run the simulator, as we are sure it shouldn't take too long, we will not specify a maxtime
         net.runSimulation();
     }
-}
+} // -------------------- NAMESPACE END --------------------------------

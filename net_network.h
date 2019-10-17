@@ -91,6 +91,15 @@ public:
         }
     }
 
+    /**
+     * starts the protocol on all nodes
+     */
+    void startProtocolOnAll() {
+        for(auto& node : nodes) {
+            node.startProtocol();
+        }
+    }
+
     size_t getNodeidLimit() {
         return this->nodes.size();
     }
