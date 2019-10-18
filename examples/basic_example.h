@@ -70,7 +70,7 @@ namespace examples {
             }
         };
         virtual void startProtocol() override {
-            message m(this->id,this->connections.begin()->second.get().id,0,5);
+            message m(this->id,this->connections.begin()->second.get().id,0,1);
             net.sendMessage(m);
         };
 
@@ -80,18 +80,30 @@ namespace examples {
         // first we create a vector of all network creation strategies we want to use and their respective tags, although our network will ignore the tag
         std::vector<std::function<void(std::vector<mynode>&)>> strategies{uniformlyAtLeastK<mynode,3,0>};
 
+        auto start = time(NULL);
+        std::cout << time(NULL) << ": Starting." << std::endl;
+
         // We use this to create a simple network of 100 nodes and a constant edge delay (delay introduced for each message sent) of 10ms
-        network<mynode> net(true, strategies, 100, constModel<10>);
+        network<mynode> net(false, strategies, 10000, constModel<10>);
 
         // We initialize the protocol on the first 4 nodes and make sure there are at least 4 nodes
         //auto id_limit = net.getNodeidLimit();
         //assert(3<id_limit);
         //net.startProtocolOn({0, 1,2,3});
 
+        std::cout << time(NULL) << ": Starting Protocol ... " << std::flush;
+
         // alternatively call startProtocolOnAll
         net.startProtocolOnAll();
 
+        std::cout << "done." << std::endl;
+
+
+        std::cout << time(NULL) << ": Starting Simulation ... " << std::flush;
         // finally we run the simulator, as we are sure it shouldn't take too long, we will not specify a maxtime
         net.runSimulation();
+        std::cout << "done." << std::endl;
+
+        std::cout << time(NULL) << ": Finished. It took " << start-time(NULL) << "s." << std::endl;
     }
 } // -------------------- NAMESPACE END --------------------------------

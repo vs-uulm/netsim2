@@ -30,7 +30,7 @@ namespace experiments {
         flood
     };
 
-    class node3pp : node {
+    class node3pp : public node {
     private:
 
         std::unordered_map<nodeid, std::reference_wrapper<node>> broadcast_connections;

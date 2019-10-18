@@ -1,7 +1,6 @@
 #include <iostream>
 
-#include "experiments/node3pp.h"
-#include "examples/basic_example.h"
+#include "experiments/nodefap.h"
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
@@ -41,7 +40,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    examples::runSimulation();
+    //examples::runSimulation();
+    experiments::runSimulationFAP();
 
     return 0;
 }

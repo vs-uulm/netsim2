@@ -15,10 +15,12 @@
  */
 template <typename T, uint16_t k, uint32_t tag=0>
 void uniformlyAtLeastK(std::vector<T>& nodes){
-    auto maximum = k<nodes.size()-1?nodes.size()-1:k;
+    auto maximum = k>nodes.size()-1?nodes.size()-1:k;
 
     static std::minstd_rand gen(std::random_device{}());
     static std::uniform_int_distribution<uint32_t> dist(0, nodes.size()-1);
+
+    std::cout << time(NULL) << ": Creating network ... " << std::flush;
 
     for(auto& host: nodes) {
         while(host.amountConnections(tag)<maximum) {
@@ -26,6 +28,8 @@ void uniformlyAtLeastK(std::vector<T>& nodes){
             host.addConnection(nodes[rnd],tag);
         }
     }
+
+    std::cout << "done." << std::endl;
 }
 
 #endif //NETSIM2_NET_CREATION_H

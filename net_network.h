@@ -5,6 +5,7 @@
 #ifndef NETSIM2_NET_NETWORK_H
 #define NETSIM2_NET_NETWORK_H
 
+#include <iostream>
 #include "simulator.h"
 
 using nodeid = uint32_t;
@@ -48,9 +49,17 @@ public:
      * creates nodes and links between those nodes.
      */
     template<typename strategies>
-    network(bool verbosity, std::vector<strategies> creators, uint32_t size, decltype(edgemodel) edgemodel) {
+    network(bool verbosity, std::vector<strategies> creators, uint32_t size, decltype(edgemodel) edgemodel) : network(std::cout, std::cout, creators, size, edgemodel) {
         sim.csv_verbosity = verbosity;
         sim.log_verbosity = verbosity;
+    }
+
+    template<typename strategies>
+    network(std::ostream& log,
+            std::ostream& csv,
+            std::vector<strategies> creators,
+            uint32_t size,
+            decltype(edgemodel) edgemodel) : sim(log, csv) {
         this->edgemodel = edgemodel;
 
         basicnetwork& basenet = *this;
@@ -65,7 +74,6 @@ public:
         for(auto creator : creators) {
             creator(nodes);
         }
-
     }
 
     /**

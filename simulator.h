@@ -32,14 +32,15 @@ class simulator {
     uint64_t clock = 0;
     std::priority_queue<event,std::vector<event>, decltype(eventComp)> eventqueue;
 
+    std::ostream& log_stream;
+    std::ostream& csv_stream;
 public:
     // logging streams
     bool log_verbosity = true;
-    std::ostream& log_stream;
     bool csv_verbosity = true;
-    std::ostream& csv_stream;
 
     simulator();
+    simulator(std::ostream& log, std::ostream& csv);
 
     void addEvent(event);
     void addEventIn(std::function<void()>, uint64_t delta);

@@ -14,6 +14,7 @@ event::event(decltype(action) a, decltype(timestamp) t) {
 
 // ---------------------- simulator -----------------------
 simulator::simulator() : eventqueue(eventComp), log_stream(std::cout), csv_stream(std::cout) {}
+simulator::simulator(std::ostream& log, std::ostream& csv) : eventqueue(eventComp), log_stream(log), csv_stream(csv) {}
 
 void simulator::addEvent(event e) {
     eventqueue.push(e);
