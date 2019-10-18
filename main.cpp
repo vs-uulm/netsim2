@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    //examples::runSimulation();
     experiments::runSimulationFAP();
 
     return 0;
