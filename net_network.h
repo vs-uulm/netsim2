@@ -81,6 +81,7 @@ public:
      */
     void sendMessage(message m) {
         if(m.to < nodes.size()) {
+            sim.csv(std::to_string(m.from)+","+std::to_string(m.to)+(m.payload!=0?","+std::to_string((m.payload & 0x0000ffff00000000)>>32)+","+std::to_string((m.payload & 0xffff000000000000)>>48):""));
             auto& node = nodes[m.to];
             sim.addEventIn([&node,m](){
                 node.receiveMessage(m);

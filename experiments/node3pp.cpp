@@ -7,29 +7,6 @@
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
-    namespace helper {
-        template <typename C>
-        void sendToGroup(basicnetwork& net, C group, uint32_t from, messagetype t, uint64_t payload) {
-            for(auto& node: group){
-                message m(from, node.id, t, payload);
-                net.sendMessage(m);
-            }
-        }
-
-        template <typename C>
-        uint64_t closestID(C ids, const uint64_t m) {
-            for(auto& id: ids) {
-                id-=m;
-            }
-            return std::min(ids);
-        }
-
-        constexpr double p(const uint16_t s, const uint16_t h, const uint16_t d) {
-            if(d==2)
-                return (static_cast<double>(s-2*h+2))/(s+2);
-            return (pow((d-1),(s/2-h+1))-1)/(pow((d-1),(s/2+1))-1);
-        }
-    }
 
     bool node3pp::addConnection(node &target, uint32_t tag) {
         // rework so dynamic_cast is not needed
