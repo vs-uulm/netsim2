@@ -22,7 +22,7 @@ void protInit<experiments::nodeAD>(uint32_t prot_spec) {
 }
 template<>
 void protInit<experiments::nodedd>(uint32_t prot_spec) {
-    experiments::nodedd::p_phasechange = prot_spec/100.0;
+    experiments::nodedd::p_phasechange = prot_spec/1000.0;
 }
 
 template<typename T>
@@ -47,7 +47,7 @@ std::string protName<experiments::nodefap>() {
 //}
 
 template<typename T>
-void runExperiment(uint32_t nodecount, uint32_t prot_spec) {
+void runExperiment(uint32_t nodecount, uint32_t prot_spec, std::vector<nodeid> starter) {
     const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concount)+"_"+protName<T>()+".csv";
     std::ofstream file;
     file.open (filename,std::ofstream::out | std::ofstream::trunc);
@@ -59,7 +59,7 @@ void runExperiment(uint32_t nodecount, uint32_t prot_spec) {
     std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T,concount>};
     network<T> net(std::cout, file, strategies, nodecount, constModel<10>);
 
-    net.startProtocolOn({1});
+    net.startProtocolOn(starter);
 
     net.runSimulation();
 
@@ -82,13 +82,15 @@ int main(int argc, char *argv[]) {
     // parse input to form parameters
     uint32_t nodecount = 10000;
     uint32_t d = 6;
+    uint32_t p = 100;
     bool verbosity = false;
 
     if (argc == 2) {
         if (argv[1][1] == 'h') {
             std::cout << "Usage: " << argv[0] << " -n<number> -t<number> -r<number>" << std::endl;
             std::cout << "\t-n<number> number of participants, default: " << nodecount << std::endl;
-            std::cout << "\t-d<number> protocol dependent parameter, default: " << d << std::endl;
+            std::cout << "\t-d<number> AD depth, default: " << d << std::endl;
+            std::cout << "\t-p<number> Dandelion probabilty as per mille, default: " << p << "(=> p/1000)" << std::endl;
             std::cout << "\t-v implies verbosity" << std::endl;
             return 0;
         }
@@ -113,10 +115,15 @@ int main(int argc, char *argv[]) {
 
     auto start = time(NULL);
 
-    runExperiment<experiments::nodeAD>(nodecount, d);
-    runExperiment<experiments::nodefap>(nodecount, d);
-    runExperiment<experiments::nodedd>(nodecount, d);
-    //runExperiment<experiments::node3pp>(nodecount, d);
+    std::minstd_rand gen(std::random_device{}());
+    std::uniform_int_distribution<> dist(0,nodecount-1);
+    std::vector<nodeid> starters;
+    starters.push_back(dist(gen));
+
+    runExperiment<experiments::nodeAD>(nodecount, d, starters);
+    runExperiment<experiments::nodefap>(nodecount, 0, starters);
+    runExperiment<experiments::nodedd>(nodecount, p, starters);
+    //runExperiment<experiments::node3pp>(nodecount, 0, starters);
 
     std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
 
