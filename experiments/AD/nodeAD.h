@@ -6,12 +6,12 @@
 #define NETSIM2_NODEAD_H
 
 #include <unordered_set>
-#include "../netsim_basic/net_nodes.h"
+#include "../../netsim_basic/net_nodes.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
 
-    enum messagetype {
+    enum ad_messagetype {
         diffuse,
         vsource
     };
@@ -48,8 +48,6 @@ namespace experiments {
 
         const bool hasSeen(uint64_t payload) const { return known_messages.count(payload); }
     };
-
-    void runSimulationAD(uint32_t,uint32_t);
 }// -------------------- NAMESPACE END --------------------------------
 
 #endif //NETSIM2_NODEAD_H

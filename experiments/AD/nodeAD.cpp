@@ -1,14 +1,17 @@
 //
 // Created by moedinger on 21.10.19.
 //
-
-#include <fstream>
+#include <random>
+#include <cmath>
 #include "nodeAD.h"
-#include "../netsim_basic/net_edge_models.h"
-#include "../netsim_basic/net_creation.h"
+#include "../../netsim_basic/net_edge_models.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
+
+    // static initializer
+    uint32_t nodeAD::d = 3;
+
     namespace helper {
         constexpr double p(const uint16_t s, const uint16_t h, const uint16_t d) {
             if(d==2)
@@ -16,8 +19,6 @@ namespace experiments {
             return (pow((d-1),(s/2-h+1))-1)/(pow((d-1),(s/2+1))-1);
         }
     }
-
-    uint32_t nodeAD::d = 3;
 
     bool nodeAD::requestConnection(node &source, uint32_t tag) {
         if(hasConnection(source, tag))
@@ -48,7 +49,7 @@ namespace experiments {
 
     void nodeAD::receiveMessage(message m) {
         switch(m.messagetype) {
-            case messagetype::diffuse:
+            case ad_messagetype::diffuse:
                 if(known_messages.count(m.payload) > 0) {
                     if(m.from == known_messages[m.payload]){
                         for(auto& node : broadcast_connections) {
@@ -63,12 +64,12 @@ namespace experiments {
                 }
                 break;
 
-            case messagetype::vsource:
+            case ad_messagetype::vsource:
                 const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
 
                 for(auto& node: broadcast_connections){
                     if(node.second.get().id != m.from){
-                        message m2(this->id,node.second.get().id,messagetype::diffuse, diffusepayload);
+                        message m2(this->id,node.second.get().id,ad_messagetype::diffuse, diffusepayload);
                         net.sendMessage(m2);
                     }
                 }
@@ -90,7 +91,7 @@ namespace experiments {
                         ad.step += 1;
                         if(helper::p(ad.step-1,ad.h, d) <= U(gen)) {
                             for(auto& node: self.broadcast_connections){
-                                message m2(self.id, node.second.get().id, messagetype::diffuse,diffusepayload);
+                                message m2(self.id, node.second.get().id, ad_messagetype::diffuse,diffusepayload);
                                 self.net.sendMessage(m2);
                             }
                         }else{
@@ -103,7 +104,7 @@ namespace experiments {
                             }while(it->second.get().id==m.from);
 
                             const uint64_t vsourcepayload = (uint64_t(ad.h) << 48) + (uint64_t(ad.step) << 32) + diffusepayload;
-                            message m2(self.id,it->second.get().id,messagetype::vsource,vsourcepayload);
+                            message m2(self.id,it->second.get().id,ad_messagetype::vsource,vsourcepayload);
                             self.net.sendMessage(m2);
                             self.known_messages[diffusepayload] = it->second.get().id;
                             return;
@@ -118,45 +119,9 @@ namespace experiments {
     }
 
     void nodeAD::startProtocol() {
-        message m(this->id, this->id, messagetype::vsource, 0);
+        message m(this->id, this->id, ad_messagetype::vsource, 0);
         known_messages[0] = this->id;
         receiveMessage(m);
     }
-
-
-
-    void runSimulationAD(uint32_t nodecount, uint32_t d) {
-        nodeAD::d = d;
-        const uint32_t concount = 8;
-
-        std::vector<std::function<void(std::vector<nodeAD>&)>> strategies{uniformlyAtLeastK<nodeAD,concount>};
-
-        auto start = time(NULL);
-
-
-        const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concount)+"_AD.csv";
-        std::ofstream file;
-        file.open (filename,std::ofstream::out | std::ofstream::trunc);
-        file.close();
-        file.open(filename,std::ios::app);
-
-        network<nodeAD> net(std::cout, file, strategies, nodecount, constModel<10>);
-
-        net.startProtocolOn({1});
-
-        net.runSimulation();
-        file.close();
-
-        auto hasntSeen = 0;
-        for(auto& node : net.getNodes()) {
-            if(!node.hasSeen(0)){
-                hasntSeen+=1;
-            }
-        }
-        std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes." << std::endl;
-
-        std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
-    }
-
 }// -------------------- NAMESPACE END --------------------------------
 

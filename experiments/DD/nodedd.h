@@ -12,6 +12,11 @@
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
 
+    enum dd_messagetype {
+        stem,
+        proapagte
+    };
+
     class nodedd : public node {
     private:
 
@@ -22,6 +27,8 @@ namespace experiments {
         bool requestConnection(node &source, uint32_t tag) override;
 
     public:
+        static double p_phasechange;
+
         using node::node;
 
         bool addConnection(node &target, uint32_t tag) override;
@@ -35,8 +42,6 @@ namespace experiments {
         void startProtocol() override;
 
     };
-
-    void runSimulationFAP();
 }// -------------------- NAMESPACE END --------------------------------
 
 #endif //NETSIM2_nodedd_H

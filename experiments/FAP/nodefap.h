@@ -7,7 +7,7 @@
 
 
 #include <unordered_set>
-#include "../netsim_basic/net_nodes.h"
+#include "../../netsim_basic/net_nodes.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
@@ -35,8 +35,6 @@ namespace experiments {
         void startProtocol() override;
 
     };
-
-    void runSimulationFAP();
 }// -------------------- NAMESPACE END --------------------------------
 
 #endif //NETSIM2_NODEFAP_H

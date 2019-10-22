@@ -6,18 +6,18 @@
 #define NETSIM2_NODE3PP_H
 
 
-#include "../netsim_basic/net_nodes.h"
+#include "../../netsim_basic/net_nodes.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
 
 // we will need 2 network layers
-    enum networktag {
+    enum pp_networktag {
         broadcast,
         group
     };
 
-    enum messagetype {
+    enum pp_messagetype {
         dcinit,
         commit1,
         dining1,

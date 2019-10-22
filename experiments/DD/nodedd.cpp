@@ -3,14 +3,14 @@
 //
 
 #include <iostream>
-#include <cassert>
-#include <fstream>
 #include "nodedd.h"
 #include "../../netsim_basic/net_edge_models.h"
-#include "../../netsim_basic/net_creation.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
+
+    // static initializer
+    double nodedd::p_phasechange = 0.1;
 
     bool nodedd::requestConnection(node &source, uint32_t tag) {
         if(hasConnection(source, tag))
@@ -62,35 +62,6 @@ namespace experiments {
             this->receiveMessage(m);
         },0);
     }
-
-
-
-    void runSimulationFAP() {
-        const auto nodecount = 100000;
-        const auto concount = 16;
-
-        std::vector<std::function<void(std::vector<nodedd>&)>> strategies{uniformlyAtLeastK<nodedd,concount>};
-
-        auto start = time(NULL);
-
-        const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concount)+"_FAP.csv";
-        std::ofstream file;
-        file.open (filename,std::ofstream::out | std::ofstream::trunc);
-        file.close();
-        file.open(filename,std::ios::app);
-
-        network<nodedd> net(std::cout, file, strategies, nodecount, constModel<10>);
-
-        auto id_limit = net.getNodeidLimit();
-        assert(3<id_limit);
-        net.startProtocolOn({1});
-
-        net.runSimulation();
-        file.close();
-
-        std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
-    }
-
 }// -------------------- NAMESPACE END --------------------------------
 
 
