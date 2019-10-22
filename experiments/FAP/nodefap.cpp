@@ -6,8 +6,8 @@
 #include <cassert>
 #include <fstream>
 #include "nodefap.h"
-#include "../netsim_basic/net_edge_models.h"
-#include "../netsim_basic/net_creation.h"
+#include "../../netsim_basic/net_edge_models.h"
+#include "../../netsim_basic/net_creation.h"
 
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
