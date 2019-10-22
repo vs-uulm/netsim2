@@ -17,6 +17,8 @@ namespace experiments {
         }
     }
 
+    uint32_t nodeAD::d = 3;
+
     bool nodeAD::requestConnection(node &source, uint32_t tag) {
         if(hasConnection(source, tag))
             return true;
@@ -123,9 +125,9 @@ namespace experiments {
 
 
 
-    void runSimulationAD() {
-        const auto nodecount = 50;
-        const auto concount = 4;
+    void runSimulationAD(uint32_t nodecount, uint32_t d) {
+        nodeAD::d = d;
+        const uint32_t concount = 8;
 
         std::vector<std::function<void(std::vector<nodeAD>&)>> strategies{uniformlyAtLeastK<nodeAD,concount>};
 
@@ -144,6 +146,14 @@ namespace experiments {
 
         net.runSimulation();
         file.close();
+
+        auto hasntSeen = 0;
+        for(auto& node : net.getNodes()) {
+            if(!node.hasSeen(0)){
+                hasntSeen+=1;
+            }
+        }
+        std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes." << std::endl;
 
         std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
     }

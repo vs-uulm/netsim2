@@ -16,8 +16,6 @@ namespace experiments {
         vsource
     };
 
-    const auto d = 3;
-
     class nodeAD : public node {
     private:
         struct AD {
@@ -34,6 +32,8 @@ namespace experiments {
         bool requestConnection(node &source, uint32_t tag) override;
 
     public:
+        static uint32_t d;
+
         using node::node;
 
         bool addConnection(node &target, uint32_t tag) override;
@@ -46,9 +46,10 @@ namespace experiments {
 
         void startProtocol() override;
 
+        const bool hasSeen(uint64_t payload) const { return known_messages.count(payload); }
     };
 
-    void runSimulationAD();
+    void runSimulationAD(uint32_t,uint32_t);
 }// -------------------- NAMESPACE END --------------------------------
 
 #endif //NETSIM2_NODEAD_H

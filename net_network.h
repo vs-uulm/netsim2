@@ -45,6 +45,8 @@ private:
 public:
     simulator sim;
 
+    const std::vector<Node>& getNodes() const {return nodes;}
+
     /**
      * creates nodes and links between those nodes.
      */
