@@ -14,7 +14,7 @@ namespace experiments {
 
     enum dd_messagetype {
         stem,
-        proapagte
+        propagate
     };
 
     class nodedd : public node {
@@ -41,6 +41,7 @@ namespace experiments {
 
         void startProtocol() override;
 
+        const bool hasSeen(uint64_t payload) const { return known_messages.count(payload); }
     };
 }// -------------------- NAMESPACE END --------------------------------
 

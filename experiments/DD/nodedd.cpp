@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <random>
 #include "nodedd.h"
 #include "../../netsim_basic/net_edge_models.h"
 
@@ -40,25 +41,49 @@ namespace experiments {
     }
 
     void nodedd::receiveMessage(message m) {
-        if(known_messages.count(m.payload) == 0) {
-            known_messages.insert(m.payload);
+        switch (m.messagetype) {
+            case dd_messagetype::propagate:
+                // normal FAP
+                if(known_messages.count(m.payload) == 0) {
+                    known_messages.insert(m.payload);
 
-            for(auto& conref : broadcast_connections) {
-                auto& connection = conref.second.get();
-                if(connection.id != m.from) {
-                    message m2(this->id, connection.id, 0, m.payload);
-                    net.sendMessage(m2);
-                    sim.csv(std::to_string(m2.from)+","+std::to_string(m2.payload)+","+std::to_string(m2.to));
+                    for(auto& conref : broadcast_connections) {
+                        auto& connection = conref.second.get();
+                        if(connection.id != m.from) {
+                            message m2(this->id, connection.id, dd_messagetype::propagate, m.payload);
+                            net.sendMessage(m2);
+                            sim.csv(std::to_string(m2.from)+","+std::to_string(m2.payload)+","+std::to_string(m2.to));
+                        }
+                    }
+
                 }
-            }
+                break;
+            case dd_messagetype::stem:
+                std::minstd_rand gen(std::random_device{}());
+                std::uniform_real_distribution<double> U(0,1);
 
+
+                if(U(gen)<=p_phasechange){
+                    message m2(id, id, dd_messagetype::propagate, m.payload);
+                    this->receiveMessage(m2);
+                }else{
+                    std::uniform_int_distribution<> dist(0,this->broadcast_connections.size()-1);
+                    decltype(broadcast_connections.begin()) it;
+                    do{
+                        it = this->broadcast_connections.begin();
+                        std::advance(it, dist(gen));
+                    }while(it->second.get().id==m.from);
+                    message m2(id, it->second.get().id, dd_messagetype::stem, m.payload);
+                    net.sendMessage(m2);
+                }
+                break;
         }
     }
 
     void nodedd::startProtocol() {
         // create pseudorandom message payload
-        message m(this->id, this->id, 0, (uint64_t(this->id)<<31)+uint32_t(rand()));
-        sim.addEventIn([&](){
+        message m(this->id, this->id, 0, 0);
+        sim.addEventIn([&,m](){
             this->receiveMessage(m);
         },0);
     }

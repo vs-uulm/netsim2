@@ -53,6 +53,8 @@ namespace experiments {
         void receiveMessage(message m) override;
 
         void startProtocol() override;
+
+        // const bool hasSeen(uint64_t payload) const { return known_messages.count(payload); }
     };
 
 

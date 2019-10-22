@@ -53,8 +53,9 @@ namespace experiments {
 
     void nodefap::startProtocol() {
         // create pseudorandom message payload
-        message m(this->id, this->id, 0, (uint64_t(this->id)<<31)+uint32_t(rand()));
-        sim.addEventIn([&](){
+        //message m(this->id, this->id, 0, (uint64_t(this->id)<<31)+uint32_t(rand()));
+        message m(this->id, this->id, 0, 0);
+        sim.addEventIn([&,m](){
             this->receiveMessage(m);
         },0);
     }

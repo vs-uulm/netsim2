@@ -121,7 +121,9 @@ namespace experiments {
     void nodeAD::startProtocol() {
         message m(this->id, this->id, ad_messagetype::vsource, 0);
         known_messages[0] = this->id;
-        receiveMessage(m);
+        sim.addEventIn([&,m](){
+            this->receiveMessage(m);
+        },0);
     }
 }// -------------------- NAMESPACE END --------------------------------
 

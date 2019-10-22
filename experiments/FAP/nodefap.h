@@ -34,6 +34,7 @@ namespace experiments {
 
         void startProtocol() override;
 
+        const bool hasSeen(uint64_t payload) const { return known_messages.count(payload); }
     };
 }// -------------------- NAMESPACE END --------------------------------
 

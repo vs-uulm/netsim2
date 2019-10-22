@@ -11,7 +11,7 @@
 // i made the mistake to have the strategies use templates
 // so i need it as a const parameter... but to only have it once, it's here
 // don't change it to dynamic.
-const auto concount = 16;
+const auto concount = 5;
 
 // if some protocol specific initialization is required, use this
 template<typename T>
@@ -35,11 +35,11 @@ std::string protName<experiments::nodeAD>() {
 }
 template<>
 std::string protName<experiments::nodedd>() {
-    return "Dandelion";
+    return "DD";
 }
 template<>
 std::string protName<experiments::nodefap>() {
-    return "FAP";
+    return "FP";
 }
 //template<>
 //std::string protName<experiments::node3pp>() {
@@ -72,13 +72,16 @@ void runExperiment(uint32_t nodecount, uint32_t prot_spec) {
             hasntSeen+=1;
         }
     }
-    std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes." << std::endl;
+    std::cout << protName<T>() << ": ";
+    std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount;
+    std::cout << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes.";
+    std::cout << " In " << net.sim.now() << "ms." << std::endl;
 }
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
     uint32_t nodecount = 10000;
-    uint32_t d = 5;
+    uint32_t d = 6;
     bool verbosity = false;
 
     if (argc == 2) {
@@ -111,8 +114,8 @@ int main(int argc, char *argv[]) {
     auto start = time(NULL);
 
     runExperiment<experiments::nodeAD>(nodecount, d);
-    //runExperiment<experiments::nodefap>(nodecount, d);
-    //runExperiment<experiments::nodedd>(nodecount, d);
+    runExperiment<experiments::nodefap>(nodecount, d);
+    runExperiment<experiments::nodedd>(nodecount, d);
     //runExperiment<experiments::node3pp>(nodecount, d);
 
     std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
