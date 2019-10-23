@@ -11,10 +11,13 @@
 namespace experiments {
     // -------------------- NAMESPACE BEGIN --------------------------------
 
-    enum ad_messagetype {
-        diffuse,
-        vsource
-    };
+    namespace ad {
+
+        enum messagetype {
+            diffuse,
+            vsource
+        };
+    }
 
     class nodeAD : public node {
     private:

@@ -49,7 +49,7 @@ namespace experiments {
 
     void nodeAD::receiveMessage(message m) {
         switch(m.messagetype) {
-            case ad_messagetype::diffuse:
+            case ad::messagetype::diffuse:
                 if(known_messages.count(m.payload) > 0) {
                     if(m.from == known_messages[m.payload]){
                         for(auto& node : broadcast_connections) {
@@ -64,12 +64,12 @@ namespace experiments {
                 }
                 break;
 
-            case ad_messagetype::vsource:
+            case ad::messagetype::vsource:
                 const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
 
                 for(auto& node: broadcast_connections){
                     if(node.second.get().id != m.from){
-                        message m2(this->id,node.second.get().id,ad_messagetype::diffuse, diffusepayload);
+                        message m2(this->id,node.second.get().id,ad::messagetype::diffuse, diffusepayload);
                         net.sendMessage(m2);
                     }
                 }
@@ -91,7 +91,7 @@ namespace experiments {
                         ad.step += 1;
                         if(helper::p(ad.step-1,ad.h, d) <= U(gen)) {
                             for(auto& node: self.broadcast_connections){
-                                message m2(self.id, node.second.get().id, ad_messagetype::diffuse,diffusepayload);
+                                message m2(self.id, node.second.get().id, ad::messagetype::diffuse,diffusepayload);
                                 self.net.sendMessage(m2);
                             }
                         }else{
@@ -104,7 +104,7 @@ namespace experiments {
                             }while(it->second.get().id==m.from);
 
                             const uint64_t vsourcepayload = (uint64_t(ad.h) << 48) + (uint64_t(ad.step) << 32) + diffusepayload;
-                            message m2(self.id,it->second.get().id,ad_messagetype::vsource,vsourcepayload);
+                            message m2(self.id,it->second.get().id,ad::messagetype::vsource,vsourcepayload);
                             self.net.sendMessage(m2);
                             self.known_messages[diffusepayload] = it->second.get().id;
                             return;
@@ -119,7 +119,7 @@ namespace experiments {
     }
 
     void nodeAD::startProtocol() {
-        message m(this->id, this->id, ad_messagetype::vsource, 0);
+        message m(this->id, this->id, ad::messagetype::vsource, 0);
         known_messages[0] = this->id;
         sim.addEventIn([&,m](){
             this->receiveMessage(m);
