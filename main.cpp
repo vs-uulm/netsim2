@@ -1,102 +1,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "experiments/AD/nodeAD.h"
-#include "experiments/DD/nodedd.h"
-#include "experiments/FAP/nodefap.h"
-#include "netsim_basic/net_creation.h"
-#include "netsim_basic/net_edge_models.h"
-#include "experiments/3PP/node3pp.h"
-
-
-// i made the mistake to have the strategies use templates
-// so i need it as a const parameter... but to only have it once, it's here
-// don't change it to dynamic.
-const auto concount = 5;
-
-
-// bad solution to mulitple parameters passing to the templated functions
-// so there is only one api I can call
-uint32_t global_d = 5;
-uint32_t global_d_3pp = 5;
-uint32_t global_N_3pp = 5;
-double global_p = 0.1;
-
-// if some protocol specific initialization is required, use this
-template<typename T>
-void protInit() {}
-template<>
-void protInit<experiments::nodeAD>() {
-    experiments::nodeAD::d = global_d;
-}
-template<>
-void protInit<experiments::nodedd>() {
-    experiments::nodedd::p_phasechange = global_p;
-}
-template<>
-void protInit<experiments::node3pp>() {
-    experiments::node3pp::d = global_d_3pp;
-    experiments::node3pp::N = global_N_3pp;
-}
-
-template<typename T>
-std::string protName(){
-    return "None";
-};
-template<>
-std::string protName<experiments::nodeAD>() {
-    return "AD";
-}
-template<>
-std::string protName<experiments::nodedd>() {
-    return "DD";
-}
-template<>
-std::string protName<experiments::nodefap>() {
-    return "FP";
-}
-template<>
-std::string protName<experiments::node3pp>() {
-    return "3P";
-}
-
-template<typename T>
-std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<nodeid> starter) {
-    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concount)+"_"+protName<T>()+".csv";
-    std::ofstream file;
-    file.open (filename,std::ofstream::out | std::ofstream::trunc);
-    file.close();
-    file.open(filename,std::ios::app);
-
-    // Protocoll specific tasks:
-    protInit<T>();
-    std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T>(concount)};
-    network<T> net(std::cout, file, strategies, nodecount, constModel<10>);
-
-    net.startProtocolOn(starter);
-
-    net.runSimulation();
-
-    // finally
-    file.close();
-
-    auto hasntSeen = 0;
-    for(auto& node : net.getNodes()) {
-        if(!node.hasSeen(0)){
-            hasntSeen+=1;
-        }
-    }
-    std::cout << protName<T>() << ": ";
-    std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount;
-    std::cout << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes.";
-    std::cout << " In " << net.sim.now() << "ms." << std::endl;
-
-    return std::make_tuple(hasntSeen,net.sim.now());
-}
+#include "experiments/run.h"
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
     uint32_t nodecount = 10000;
+    uint32_t concount = 5;
     bool verbosity = false;
 
     if (argc == 2) {
@@ -151,16 +61,16 @@ int main(int argc, char *argv[]) {
 
     file << nodecount << "," << starters[0] << ",";
     file << global_d << "," << global_p << "," << global_d_3pp << "," << global_N_3pp;
-    auto result = runExperiment<experiments::nodeAD>(nodecount, starters);
+    auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concount);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::nodefap>(nodecount, starters);
+    result = runExperiment<experiments::nodefap>(nodecount, starters, concount);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::nodedd>(nodecount, starters);
+    result = runExperiment<experiments::nodedd>(nodecount, starters, concount);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::node3pp>(nodecount, starters);
+    result = runExperiment<experiments::node3pp>(nodecount, starters, concount);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
     file << std::endl;
 
