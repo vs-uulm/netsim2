@@ -82,6 +82,16 @@ int main(int argc, char *argv[]) {
     std::cout << time(NULL) << ": Starting." << std::endl;
     auto start = time(NULL);
 
+
+    std::cout << "Nodecount: " << nodecount << std::endl;
+    std::cout << "Connections: " << concount << std::endl;
+    std::cout << "Groupsize: " << groupcount << std::endl;
+    std::cout << "Starting node: " << starters[0] << std::endl;
+    std::cout << "AD d: " << global_d << std::endl;
+    std::cout << "DD p: " << global_p << std::endl;
+    std::cout << "3pp d: " << global_d_3pp << std::endl;
+    std::cout << "3pp N: " << global_N_3pp << std::endl;
+
     file << nodecount << "," << concount << "," << groupcount << "," << starters[0] << ",";
     file << global_d << "," << global_p << "," << global_d_3pp << "," << global_N_3pp;
     auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concounts);
@@ -98,7 +108,7 @@ int main(int argc, char *argv[]) {
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
     file << std::endl;
 
-    auto end = start-time(NULL);
+    auto end = time(NULL)-start;
     std::cout << time(NULL) << ": Finished. It took " << end << "s." << std::endl;
 
     return 0;
