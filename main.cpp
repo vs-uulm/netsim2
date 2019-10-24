@@ -70,7 +70,7 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
 
     // Protocoll specific tasks:
     protInit<T>();
-    std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T,concount>};
+    std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T>(concount)};
     network<T> net(std::cout, file, strategies, nodecount, constModel<10>);
 
     net.startProtocolOn(starter);
