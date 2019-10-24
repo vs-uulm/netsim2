@@ -57,7 +57,7 @@ namespace experiments {
     }
 
     bool node3pp::haveAllSent(uint32_t received_messagetype, uint64_t payload) {
-        return phase_recorder[payload].count(received_messagetype) >= group_connections.size();
+        return phase_recorder[payload][received_messagetype] >= group_connections.size();
     }
 
     void node3pp::whenAllSend(uint32_t received_messagetype, uint32_t tosend_messagetype, uint64_t payload) {
@@ -135,6 +135,7 @@ namespace experiments {
                 if(haveAllSent(pp::messagetype::dining4, m.payload)) {
                     if(closestID(m.payload)) {
                         message m2(id, id, pp::messagetype::vsource, m.payload);
+                        receiveMessage(m2);
                     }
                 }
                 break;
@@ -202,7 +203,6 @@ namespace experiments {
             }
 
             case pp::messagetype::adaptive:
-
                 if(known_messages.count(m.payload) > 0) {
                     if(m.from == known_messages[m.payload] && known_messages[m.payload] != pp::flooding_received){
                         for(auto& node : selected_n[m.payload]) {
@@ -234,7 +234,15 @@ namespace experiments {
     }
 
     void node3pp::startProtocol() {
-
+        message m(id, id, pp::messagetype::dcinit, 0);
+        known_messages[0] = id;
+        sim.addEventIn([&,m](){
+            this->receiveMessage(m);
+            for(auto& node : this->group_connections) {
+                message m2(node.second.get().id, node.second.get().id, pp::messagetype::dcinit, 0);
+                node.second.get().receiveMessage(m2);
+            }
+        },0);
     }
 
     bool node3pp::requestConnection(node &source, uint32_t tag) {
