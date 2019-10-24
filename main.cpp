@@ -32,6 +32,12 @@ int main(int argc, char *argv[]) {
                 case 'n':
                     nodecount = stoi(param.substr(2));
                     break;
+                case 'c':
+                    concount = stoi(param.substr(2));
+                    break;
+                case 'g':
+                    groupcount = stoi(param.substr(2));
+                    break;
                 case 'd':
                     global_d = stoi(param.substr(2));
                     break;
@@ -39,10 +45,10 @@ int main(int argc, char *argv[]) {
                     global_p = stoi(param.substr(2))/1000.0;
                     break;
                 case 'a':
-                    global_d_3pp = stoi(param.substr(2))/1000.0;
+                    global_d_3pp = stoi(param.substr(2));
                     break;
                 case 'N':
-                    global_N_3pp  = stoi(param.substr(2))/1000.0;
+                    global_N_3pp  = stoi(param.substr(2));
                     break;
                 case 'v':
                     verbosity = true;
@@ -52,7 +58,18 @@ int main(int argc, char *argv[]) {
     }
 
     std::ofstream file;
-    file.open("simresults.csv", std::ios::app);
+    std::string filename = "simresults.csv";
+    std::ifstream output(filename);
+    bool fileexisted = output.good();
+    file.open(filename, std::ios::app);
+
+    // write csv header if file didnt exist before
+    if(!fileexisted) {
+        file << "nodecount, conection count, groupsize,starting node,AD depth,Dandelion probability,3pp AD depth,3pp N spread,";
+        file << "AD unreached nodes, AD simtime, FAP unreached nodes, FAP simtime,";
+        file << "DD unreached nodes, DD simtime, 3pp unreached nodes, 3pp simtime";
+        file << std::endl;
+    }
 
     // generate a random starter node
     std::minstd_rand gen(std::random_device{}());
@@ -62,9 +79,10 @@ int main(int argc, char *argv[]) {
 
     std::vector<uint32_t> concounts{concount};
 
+    std::cout << time(NULL) << ": Starting." << std::endl;
     auto start = time(NULL);
 
-    file << nodecount << "," << starters[0] << ",";
+    file << nodecount << "," << concount << "," << groupcount << "," << starters[0] << ",";
     file << global_d << "," << global_p << "," << global_d_3pp << "," << global_N_3pp;
     auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
@@ -80,7 +98,8 @@ int main(int argc, char *argv[]) {
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
     file << std::endl;
 
-    std::cout << time(NULL) << ": Finished. It took " << time(NULL)-start << "s." << std::endl;
+    auto end = start-time(NULL);
+    std::cout << time(NULL) << ": Finished. It took " << end << "s." << std::endl;
 
     return 0;
 }
