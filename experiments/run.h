@@ -60,8 +60,22 @@ std::string protName<experiments::node3pp>() {
 }
 
 template<typename T>
-std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<nodeid> starter, uint32_t concount) {
-    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concount)+"_"+protName<T>()+".csv";
+std::vector<std::function<void(std::vector<T>&)>> getStrategies(const std::vector<uint32_t>& concounts) {
+    std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T>(concounts[0])};
+    return strategies;
+}
+template<>
+std::vector<std::function<void(std::vector<experiments::node3pp>&)>> getStrategies(const std::vector<uint32_t>& concounts) {
+    std::vector<std::function<void(std::vector<experiments::node3pp> &)>> strategies{
+        uniformlyAtLeastK<experiments::node3pp>(concounts[0],experiments::pp::networktag::broadcast),
+                groupOfSizeK<experiments::node3pp>(concounts[1],experiments::pp::networktag::group)
+                };
+    return strategies;
+}
+
+template<typename T>
+std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<nodeid> starter, std::vector<uint32_t> concounts) {
+    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concounts[0])+(concounts.size()>1?"_"+std::to_string(concounts[1]):"")+"_"+protName<T>()+".csv";
     std::ofstream file;
     file.open (filename,std::ofstream::out | std::ofstream::trunc);
     file.close();
@@ -69,8 +83,7 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
 
     // Protocoll specific tasks:
     protInit<T>();
-    std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T>(concount)};
-    network<T> net(std::cout, file, strategies, nodecount, constModel<10>);
+    network<T> net(std::cout, file, getStrategies<T>(concounts), nodecount, constModel<10>);
 
     net.startProtocolOn(starter);
 

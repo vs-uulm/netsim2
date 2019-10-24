@@ -7,12 +7,15 @@ int main(int argc, char *argv[]) {
     // parse input to form parameters
     uint32_t nodecount = 10000;
     uint32_t concount = 5;
+    uint32_t groupcount = 5;
     bool verbosity = false;
 
     if (argc == 2) {
         if (argv[1][1] == 'h') {
             std::cout << "Usage: " << argv[0] << " -n<number> -t<number> -r<number>" << std::endl;
             std::cout << "\t-n<number> number of participants, default: " << nodecount << std::endl;
+            std::cout << "\t-c<number> number of connections per node, default: " << concount << std::endl;
+            std::cout << "\t-g<number> groupsize, default: " << groupcount << std::endl;
             std::cout << "\t-d<number> AD depth, default: " << global_d << std::endl;
             std::cout << "\t-a<number> 3pp-AD depth, default: " << global_d_3pp << std::endl;
             std::cout << "\t-N<number> 3pp-AD-N, default: " << global_N_3pp << std::endl;
@@ -57,20 +60,23 @@ int main(int argc, char *argv[]) {
     std::vector<nodeid> starters;
     starters.push_back(dist(gen));
 
+    std::vector<uint32_t> concounts{concount};
+
     auto start = time(NULL);
 
     file << nodecount << "," << starters[0] << ",";
     file << global_d << "," << global_p << "," << global_d_3pp << "," << global_N_3pp;
-    auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concount);
+    auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::nodefap>(nodecount, starters, concount);
+    result = runExperiment<experiments::nodefap>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::nodedd>(nodecount, starters, concount);
+    result = runExperiment<experiments::nodedd>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
 
-    result = runExperiment<experiments::node3pp>(nodecount, starters, concount);
+    concounts.push_back(groupcount);
+    result = runExperiment<experiments::node3pp>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
     file << std::endl;
 
