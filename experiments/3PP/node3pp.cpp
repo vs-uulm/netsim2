@@ -139,7 +139,6 @@ namespace experiments {
                     }
                 }
                 break;
-
             case pp::messagetype::vsource: {
                 const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
 
@@ -169,18 +168,19 @@ namespace experiments {
                         std::uniform_real_distribution<double> U(0, 1);
 
                         ad.step += 1;
-                        if (helper::p(ad.step - 1, ad.h, d) <= U(gen)) {
+                        if (helper::p(ad.step - 1, ad.h, d) <=  U(gen)) {
                             for (auto &node: self.selected_n[diffusepayload]) {
                                 message m2(self.id, node.get().id, pp::messagetype::adaptive, diffusepayload);
                                 self.net.sendMessage(m2);
                             }
                         } else {
                             // select random connection that is not the previous vsource token
-                            std::uniform_int_distribution<> dist(0, self.broadcast_connections.size() - 1);
-                            decltype(selected_n[diffusepayload].begin()) it;
+                            std::uniform_int_distribution<> dist(0, self.selected_n.size() - 1);
+                            decltype(self.selected_n[diffusepayload].begin()) it;
                             do {
                                 it = self.selected_n[diffusepayload].begin();
-                                std::advance(it, dist(gen));
+                                auto x = dist(gen);
+                                std::advance(it, x);
                             } while (it->get().id == m.from);
 
                             const uint64_t vsourcepayload =
