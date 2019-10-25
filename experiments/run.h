@@ -76,21 +76,25 @@ std::vector<std::function<void(std::vector<experiments::node3pp>&)>> getStrategi
 template<typename T>
 std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<nodeid> starter, std::vector<uint32_t> concounts) {
     const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concounts[0])+(concounts.size()>1?"_"+std::to_string(concounts[1]):"")+"_"+protName<T>()+".csv";
-    std::ofstream file;
+    /*std::ofstream file;
     file.open (filename,std::ofstream::out | std::ofstream::trunc);
     file.close();
     file.open(filename,std::ios::app);
+    */
+    //std::ofstream devnull("/dev/null");
 
     // Protocoll specific tasks:
     protInit<T>();
-    network<T> net(std::cout, file, getStrategies<T>(concounts), nodecount, constModel<10>);
+    //network<T> net(std::cout, file, getStrategies<T>(concounts), nodecount, constModel<10>);
+    //network<T> net(std::cout, devnull, getStrategies<T>(concounts), nodecount, constModel<10>);
+    network<T> net(false, getStrategies<T>(concounts), nodecount, constModel<10>);
 
     net.startProtocolOn(starter);
 
     net.runSimulation();
 
     // finally
-    file.close();
+    //file.close();
 
     auto hasntSeen = 0;
     for(auto& node : net.getNodes()) {
