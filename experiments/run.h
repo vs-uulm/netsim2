@@ -87,7 +87,7 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
     protInit<T>();
     //network<T> net(std::cout, file, getStrategies<T>(concounts), nodecount, constModel<10>);
     //network<T> net(std::cout, devnull, getStrategies<T>(concounts), nodecount, constModel<10>);
-    network<T> net(false, getStrategies<T>(concounts), nodecount, constModel<10>);
+    network<T> net(false, getStrategies<T>(concounts), nodecount, normalModel<80,200>(20,1));
 
     net.startProtocolOn(starter);
 
