@@ -9,12 +9,12 @@
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
-    uint32_t nodecount = 10000;
-    uint32_t concount = 5;
+    uint32_t nodecount = 100;
+    uint32_t concount = 8;
 
     if (argc == 2) {
         if (argv[1][1] == 'h') {
-            std::cout << "Usage: " << argv[0] << " -n<number> -t<number> -r<number>" << std::endl;
+            std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
             std::cout << "\t-n<number> number of participants, default: " << nodecount << std::endl;
             std::cout << "\t-c<number> number of connections per node, default: " << concount << std::endl;
             std::cout << "\t-d<number> AD depth, default: " << global_d << std::endl;
@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    global_d = 6;
+
     std::ofstream file;
     std::string filename = "AD_simresults.csv";
     std::ifstream output(filename);
@@ -61,12 +63,13 @@ int main(int argc, char *argv[]) {
 
     auto start = time(NULL);
 
-    file << nodecount << "," << concount << "," << "," << starters[0] << "," << global_d;
+    file << nodecount << "," << concount << "," << starters[0] << "," << global_d;
     auto result = runExperiment<experiments::nodeAD>(nodecount, starters, concounts);
     file << "," << std::get<0>(result) << "," << std::get<1>(result);
+    file << std::endl;
 
     auto end = time(NULL)-start;
-    std::cout << time(NULL) << ": Finished. It took " << end << "s." << std::endl;
+    std::cout << time(NULL) << " " << protName<experiments::nodeAD>() << ": It took " << end << "s. Missrate: " << std::get<0>(result)*100.0/nodecount << "%" << std::endl;
 
     return 0;
 }

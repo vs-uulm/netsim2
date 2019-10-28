@@ -67,6 +67,8 @@ namespace experiments {
             case ad::messagetype::vsource:
                 const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
 
+                known_messages[diffusepayload] = this->id;
+
                 for(auto& node: broadcast_connections){
                     if(node.second.get().id != m.from){
                         message m2(this->id,node.second.get().id,ad::messagetype::diffuse, diffusepayload);

@@ -102,10 +102,10 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
             hasntSeen+=1;
         }
     }
-    std::cout << protName<T>() << ": ";
-    std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount;
-    std::cout << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes.";
-    std::cout << " In " << net.sim.now() << "ms." << std::endl;
+    //std::cout << protName<T>() << ": ";
+    //std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount;
+    //std::cout << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes.";
+    //std::cout << " In " << net.sim.now() << "ms." << std::endl;
 
     return std::make_tuple(hasntSeen,net.sim.now());
 }

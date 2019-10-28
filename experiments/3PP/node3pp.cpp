@@ -142,6 +142,8 @@ namespace experiments {
             case pp::messagetype::vsource: {
                 const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
 
+                known_messages[diffusepayload] = this->id;
+
                 const auto tmp_N = m.from == id ? N : N-1;
                 if(selected_n[diffusepayload].size() == 0)
                     selectN(tmp_N, m.from, diffusepayload);

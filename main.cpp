@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
     if (argc == 2) {
         if (argv[1][1] == 'h') {
-            std::cout << "Usage: " << argv[0] << " -n<number> -t<number> -r<number>" << std::endl;
+            std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
             std::cout << "\t-n<number> number of participants, default: " << nodecount << std::endl;
             std::cout << "\t-c<number> number of connections per node, default: " << concount << std::endl;
             std::cout << "\t-g<number> groupsize, default: " << groupcount << std::endl;
