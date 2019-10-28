@@ -1,5 +1,6 @@
 //
 // Created by moedinger on 16.10.19.
+// https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=832574
 // https://dl.acm.org/citation.cfm?id=637203
 //
 
@@ -16,6 +17,7 @@ double constModel() {
     return d;
 }
 
+template<uint32_t gamma = 0, uint32_t max = 500>
 class normalModel {
 private:
     std::default_random_engine gen;
@@ -25,10 +27,11 @@ public:
     normalModel(double mu, double si) : dist(mu, si) {}
 
     double operator()() {
-        return dist(gen);
+        return std::min(double(dist(gen))+gamma, double(max));
     }
 };
 
+template<uint32_t gamma = 0, uint32_t max = 500>
 class lognormalModel {
 private:
     std::default_random_engine gen;
@@ -38,7 +41,7 @@ public:
     lognormalModel(double mu, double si) : dist(mu, si) {}
 
     double operator()() {
-        return dist(gen);
+        return std::min(double(dist(gen))+gamma, double(max));
     }
 };
 
