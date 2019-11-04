@@ -41,15 +41,7 @@ int main(int argc, char *argv[]) {
 
     std::ofstream file;
     std::string filename = "DD_simresults.csv";
-    std::ifstream output(filename);
-    bool fileexisted = output.good();
     file.open(filename, std::ios::app);
-
-    // write csv header if file didnt exist before
-    if(!fileexisted) {
-        file << "nodecount, conection count, starting node,Dandelion probability,unreached nodes, simtime";
-        file << std::endl;
-    }
 
     // generate a random starter node
     std::minstd_rand gen(std::random_device{}());
