@@ -26,15 +26,15 @@ namespace experiments {
         }
     }
 
-    bool node3pp::addConnection(node3pp &target, uint32_t tag) {
+    bool node3pp::addConnection(node &target, uint32_t tag) {
         // rework so dynamic_cast is not needed
-        if(target.requestConnection(*this, tag)) {
+        if(dynamic_cast<node3pp&>(target).requestConnection(*this, tag)) {
             this->requestConnection(target, tag);
         }
         return false;
     }
 
-    bool node3pp::hasConnection(node3pp &target, uint32_t tag) {
+    bool node3pp::hasConnection(node &target, uint32_t tag) {
         switch (tag) {
             case pp::networktag::broadcast:
                 if (broadcast_connections.count(target.id) > 0)
@@ -71,7 +71,7 @@ namespace experiments {
     }
 
     void node3pp::selectN(uint32_t n, uint32_t ignore, uint64_t payload) {
-        std::vector<std::reference_wrapper<node3pp>> selected;
+        std::vector<std::reference_wrapper<node>> selected;
 
         // all legal participants
         for(auto& node : broadcast_connections) {
@@ -247,7 +247,7 @@ namespace experiments {
         },0);
     }
 
-    bool node3pp::requestConnection(node3pp &source, uint32_t tag) {
+    bool node3pp::requestConnection(node &source, uint32_t tag) {
         if(hasConnection(source, tag))
             return true;
 
