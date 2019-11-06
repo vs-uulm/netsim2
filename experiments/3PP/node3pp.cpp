@@ -63,9 +63,21 @@ namespace experiments {
     void node3pp::whenAllSend(uint32_t received_messagetype, uint32_t tosend_messagetype, uint64_t payload) {
         phase_recorder[payload][received_messagetype] += 1;
         if(haveAllSent(received_messagetype, payload)){
-            for(auto& node : group_connections) {
-                message m(id, node.second.get().id, tosend_messagetype, payload);
-                net.sendMessage(m);
+            if(tosend_messagetype==pp::messagetype::commit2){
+                sim.addEventIn(
+                        [this,tosend_messagetype,payload](){
+                            for(auto& node : group_connections) {
+                                message m(id, node.second.get().id, tosend_messagetype, payload);
+                                net.sendMessage(m);
+                            }
+                            }
+                            // n*(n-1)*2 commits a 1/2 ms
+                        ,group_connections.size()*(group_connections.size()-1));
+            }else{
+                for(auto& node : group_connections) {
+                    message m(id, node.second.get().id, tosend_messagetype, payload);
+                    net.sendMessage(m);
+                }
             }
         }
     }
@@ -106,26 +118,32 @@ namespace experiments {
                     break;
 
                 phase_recorder[m.payload][pp::messagetype::dcinit] = 1;
-                for(auto& node : group_connections) {
-                    message m2(id, node.second.get().id, pp::messagetype::commit1, m.payload);
-                    net.sendMessage(m2);
-                }
+                sim.addEventIn(
+                        [this,m](){
+                                for(auto& node : group_connections) {
+                                    message m2(id, node.second.get().id, pp::messagetype::commit1, m.payload);
+                                    net.sendMessage(m2);
+                                    message m3(id, node.second.get().id, pp::messagetype::dining1, m.payload);
+                                    net.sendMessage(m3);
+                                }
+                            }
+                            // crypto takes 0.5ms per commit, computing 2*n*(n-1) commits -> n*(n-1) ms
+                        ,group_connections.size()*(group_connections.size()-1));
                 break;
             case pp::messagetype::commit1:
+                break;
+            case pp::messagetype::dining1:
                 if(phase_recorder[m.payload][pp::messagetype::dcinit] == 0) {
                     message m2(id, id, pp::messagetype::dcinit, m.payload);
                     receiveMessage(m2);
                 }
-                whenAllSend(m.messagetype, pp::messagetype::dining1, m.payload);
-                break;
-            case pp::messagetype::dining1:
                 whenAllSend(m.messagetype, pp::messagetype::dining2, m.payload);
                 break;
             case pp::messagetype::dining2:
                 whenAllSend(m.messagetype, pp::messagetype::commit2, m.payload);
+                whenAllSend(m.messagetype, pp::messagetype::dining3, m.payload);
                 break;
             case pp::messagetype::commit2:
-                whenAllSend(m.messagetype, pp::messagetype::dining3, m.payload);
                 break;
             case pp::messagetype::dining3:
                 whenAllSend(m.messagetype, pp::messagetype::dining4, m.payload);
