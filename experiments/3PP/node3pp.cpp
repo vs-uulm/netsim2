@@ -131,6 +131,7 @@ namespace experiments {
                         ,group_connections.size()*(group_connections.size()-1));
                 break;
             case pp::messagetype::commit1:
+                // we would be aggregating and checking here, but it has no impact on network performance
                 break;
             case pp::messagetype::dining1:
                 if(phase_recorder[m.payload][pp::messagetype::dcinit] == 0) {
@@ -195,7 +196,7 @@ namespace experiments {
                             }
                         } else {
                             // select random connection that is not the previous vsource token
-                            std::uniform_int_distribution<> dist(0, self.selected_n.size() - 1);
+                            std::uniform_int_distribution<> dist(0, self.selected_n[diffusepayload].size() - 1);
                             decltype(self.selected_n[diffusepayload].begin()) it;
                             do {
                                 it = self.selected_n[diffusepayload].begin();
