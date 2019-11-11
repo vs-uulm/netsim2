@@ -46,7 +46,7 @@ namespace experiments {
         return false;
     }
 
-    size_t node3pp::amountConnections(uint32_t tag) {
+    size_t node3pp::amountConnections(uint32_t tag) const {
         switch (tag) {
             case pp::networktag::broadcast:
                 return broadcast_connections.size();
@@ -112,6 +112,7 @@ namespace experiments {
     }
 
     void node3pp::receiveMessage(message m) {
+        this->has_received_message = true;
         switch (m.messagetype) {
             case pp::messagetype::dcinit:
                 if(phase_recorder[m.payload][pp::messagetype::dcinit]!=0)

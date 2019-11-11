@@ -9,9 +9,9 @@
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
-    uint32_t nodecount = 10000;
-    uint32_t concount = 5;
-    uint32_t groupcount = 5;
+    uint32_t nodecount = 100;
+    uint32_t concount = 13;
+    uint32_t groupcount = 3;
 
     if (argc == 2) {
         if (argv[1][1] == 'h') {

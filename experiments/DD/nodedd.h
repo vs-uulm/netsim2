@@ -35,7 +35,7 @@ namespace experiments {
 
         bool hasConnection(node &target, uint32_t tag) override;
 
-        size_t amountConnections(uint32_t tag) override;
+        size_t amountConnections(uint32_t tag) const override;
 
         void receiveMessage(message m) override;
 

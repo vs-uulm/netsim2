@@ -81,12 +81,10 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
     file.close();
     file.open(filename,std::ios::app);
     */
-    //std::ofstream devnull("/dev/null");
 
     // Protocoll specific tasks:
     protInit<T>();
     //network<T> net(std::cout, file, getStrategies<T>(concounts), nodecount, constModel<10>);
-    //network<T> net(std::cout, devnull, getStrategies<T>(concounts), nodecount, constModel<10>);
     network<T> net(false, getStrategies<T>(concounts), nodecount, normalModel<80,200>(20,1));
 
     net.startProtocolOn(starter);
@@ -96,16 +94,70 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
     // finally
     //file.close();
 
+    std::ofstream ph_log,pr_log;
+    ph_log.open("phaselog_"+filename,std::ios::app);
+    net.writePhaseProtocol(ph_log);
+    ph_log.close();
+
+    pr_log.open("progress_"+filename,std::ios::app);
+    net.writeProgressProtocol(pr_log);
+    pr_log.close();
+
     auto hasntSeen = 0;
     for(auto& node : net.getNodes()) {
         if(!node.hasSeen(0)){
             hasntSeen+=1;
         }
     }
-    //std::cout << protName<T>() << ": ";
-    //std::cout << nodecount-hasntSeen << " (" << (nodecount-hasntSeen)*100.0/nodecount;
-    //std::cout << "%) of nodes did receive the message. Missing " << hasntSeen << " nodes.";
-    //std::cout << " In " << net.sim.now() << "ms." << std::endl;
+
+    return std::make_tuple(hasntSeen,net.sim.now());
+}
+
+template<>
+std::tuple<uint64_t,uint64_t> runExperiment<experiments::node3pp>(uint32_t nodecount, std::vector<nodeid> starter, std::vector<uint32_t> concounts) {
+    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concounts[0])+(concounts.size()>1?"_"+std::to_string(concounts[1]):"")+"_"+protName<experiments::node3pp>()+".csv";
+    /*std::ofstream file;
+    file.open (filename,std::ofstream::out | std::ofstream::trunc);
+    file.close();
+    file.open(filename,std::ios::app);
+    */
+
+    // Protocoll specific tasks:
+    protInit<experiments::node3pp>();
+    //network<experiments::node3pp> net(std::cout, file, getStrategies<experiments::node3pp>(concounts), nodecount, constModel<10>);
+    network<experiments::node3pp> net(false, getStrategies<experiments::node3pp>(concounts), nodecount, normalModel<80,200>(20,1));
+
+    if(concounts.size()>1){
+        std::minstd_rand gen(std::random_device{}());
+        std::uniform_int_distribution<> dist(0,nodecount-1);
+        for(auto& s : starter){
+            while(net.getNodes()[s].amountConnections(experiments::pp::networktag::group)!=concounts[1]-1){
+                s = dist(gen);
+            }
+        }
+    }
+    net.startProtocolOn(starter);
+
+    net.runSimulation();
+
+    // finally
+    //file.close();
+
+    std::ofstream ph_log,pr_log;
+    ph_log.open("phaselog_"+filename,std::ios::app);
+    net.writePhaseProtocol(ph_log);
+    ph_log.close();
+
+    pr_log.open("progress_"+filename,std::ios::app);
+    net.writeProgressProtocol(pr_log);
+    pr_log.close();
+
+    auto hasntSeen = 0;
+    for(auto& node : net.getNodes()) {
+        if(!node.hasSeen(0)){
+            hasntSeen+=1;
+        }
+    }
 
     return std::make_tuple(hasntSeen,net.sim.now());
 }

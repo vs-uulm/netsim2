@@ -36,11 +36,12 @@ namespace experiments {
         return false;
     }
 
-    size_t nodedd::amountConnections(uint32_t tag) {
+    size_t nodedd::amountConnections(uint32_t tag) const {
         return broadcast_connections.size();
     }
 
     void nodedd::receiveMessage(message m) {
+        this->has_received_message = true;
         switch (m.messagetype) {
             case dd_messagetype::propagate:
                 // normal FAP

@@ -31,11 +31,12 @@ namespace experiments {
         return false;
     }
 
-    size_t nodefap::amountConnections(uint32_t tag) {
+    size_t nodefap::amountConnections(uint32_t tag) const {
         return broadcast_connections.size();
     }
 
     void nodefap::receiveMessage(message m) {
+        this->has_received_message = true;
         if(known_messages.count(m.payload) == 0) {
             known_messages.insert(m.payload);
 

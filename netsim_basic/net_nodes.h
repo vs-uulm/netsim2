@@ -25,6 +25,7 @@ protected:
     // internal method if connections need to be bidirectional
     virtual bool requestConnection(node& source, uint32_t tag) = 0;
 
+    bool has_received_message = false;
 public:
     // substitute for ip adress
     const uint32_t id;
@@ -43,11 +44,13 @@ public:
     // tags allow for different connection buckets
     virtual bool addConnection(node& target, uint32_t tag) = 0;
     virtual bool hasConnection(node& target, uint32_t tag) = 0;
-    virtual size_t amountConnections(uint32_t tag) = 0;
+    virtual size_t amountConnections(uint32_t tag) const = 0;
 
     // Communication protocol logic
     virtual void receiveMessage(message m) = 0;
     virtual void startProtocol() = 0;
+
+    bool hasReceivedMessage() const { return has_received_message; }
 };
 
 #endif //NETSIM2_NET_NODES_H

@@ -43,11 +43,12 @@ namespace experiments {
         return false;
     }
 
-    size_t nodeAD::amountConnections(uint32_t tag) {
+    size_t nodeAD::amountConnections(uint32_t tag) const {
         return broadcast_connections.size();
     }
 
     void nodeAD::receiveMessage(message m) {
+        this->has_received_message = true;
         switch(m.messagetype) {
             case ad::messagetype::diffuse:
                 if(known_messages.count(m.payload) > 0) {

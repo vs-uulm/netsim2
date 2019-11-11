@@ -67,7 +67,7 @@ namespace pp {
 
         bool hasConnection(node &n, uint32_t tag) override;
 
-        size_t amountConnections(uint32_t tag) override;
+        size_t amountConnections(uint32_t tag) const override;
 
         // protocol overrides
         void receiveMessage(message m) override;

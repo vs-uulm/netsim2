@@ -42,6 +42,11 @@ private:
     // modelling all the edges between nodes
     std::function<double(void)> edgemodel;
 
+    // logging message phases
+    std::unordered_map<uint32_t,std::pair<uint64_t,uint64_t>> phaselogger;
+    // logging progress
+    std::vector<std::pair<uint32_t,uint32_t>> progresslogger;
+
 public:
     simulator sim;
 
@@ -76,12 +81,24 @@ public:
         for(auto creator : creators) {
             creator(nodes);
         }
+
+        progresslogger.push_back({0,0});
     }
 
     /**
      * Send a message with a delay based on the edgemodel
      */
     void sendMessage(message m) {
+        if(phaselogger.count(m.messagetype)==0){
+            phaselogger[m.messagetype].first = sim.now();
+        }
+        phaselogger[m.messagetype].second = sim.now();
+
+        if(progresslogger.back().first < sim.now()){
+            progresslogger.back().second = std::count_if(nodes.begin(), nodes.end(), [](auto& n){ return n.hasReceivedMessage(); });
+            progresslogger.push_back(std::make_pair(sim.now(),progresslogger.back().second));
+        }
+
         if(m.to < nodes.size()) {
             sim.csv(std::to_string(m.from)+","+std::to_string(m.to)+","+std::to_string(m.messagetype)+(m.payload!=0?","+std::to_string((m.payload & 0x0000ffff00000000)>>32)+","+std::to_string((m.payload & 0xffff000000000000)>>48):""));
             auto& node = nodes[m.to];
@@ -121,6 +138,24 @@ public:
     void runSimulation(uint64_t maxtime = uint64_t(1)<<63) {
         while (!sim.empty() && sim.now() < maxtime)
             sim.next();
+    }
+
+    /**
+     * write phase prot after simulation
+     */
+    void writePhaseProtocol(std::ostream& out){
+        for(auto& el : phaselogger) {
+            out << el.first << "," << el.second.first << "," << el.second.second << "\n";
+        }
+    }
+
+    /**
+     * write progress prot after simulation
+     */
+    void writeProgressProtocol(std::ostream& out){
+        for(auto& el : progresslogger) {
+            out << el.first << "," << el.second << "\n";
+        }
     }
 };
 

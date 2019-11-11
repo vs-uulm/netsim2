@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[]) {
     // parse input to form parameters
-    uint32_t nodecount = 10000;
+    uint32_t nodecount = 100;
     uint32_t concount = 5;
 
     if (argc == 2) {
