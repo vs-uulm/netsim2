@@ -59,6 +59,32 @@ std::string protName<experiments::node3pp>() {
     return "3P";
 }
 
+template <typename T>
+std::string fileName(uint32_t nodecount, const std::vector<uint32_t>& concounts) {
+    return std::to_string(nodecount)+"_k_"+std::to_string(concounts[0]);
+}
+template <>
+std::string fileName<experiments::node3pp>(uint32_t nodecount, const std::vector<uint32_t>& concounts) {
+    return protName<experiments::node3pp>()+"_"+fileName<int>(nodecount,concounts)
+           +"_g_"+std::to_string(concounts[1])
+           +"_a_"+std::to_string(global_d_3pp)
+           +"_N_"+std::to_string(global_N_3pp);
+}
+template <>
+std::string fileName<experiments::nodefap>(uint32_t nodecount, const std::vector<uint32_t>& concounts) {
+    return protName<experiments::nodefap>()+"_"+fileName<int>(nodecount,concounts);
+}
+template <>
+std::string fileName<experiments::nodeAD>(uint32_t nodecount, const std::vector<uint32_t>& concounts) {
+    return protName<experiments::nodeAD>()+"_"+fileName<int>(nodecount,concounts)
+                                                +"_d_"+std::to_string(global_d);
+}
+template <>
+std::string fileName<experiments::nodedd>(uint32_t nodecount, const std::vector<uint32_t>& concounts) {
+    return protName<experiments::nodedd>()+"_"+fileName<int>(nodecount,concounts)
+                                                +"_p_"+std::to_string(global_p);
+}
+
 template<typename T>
 std::vector<std::function<void(std::vector<T>&)>> getStrategies(const std::vector<uint32_t>& concounts) {
     std::vector<std::function<void(std::vector<T>&)>> strategies{uniformlyAtLeastK<T>(concounts[0])};
@@ -75,7 +101,7 @@ std::vector<std::function<void(std::vector<experiments::node3pp>&)>> getStrategi
 
 template<typename T>
 std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<nodeid> starter, std::vector<uint32_t> concounts) {
-    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concounts[0])+(concounts.size()>1?"_"+std::to_string(concounts[1]):"")+"_"+protName<T>()+".csv";
+    const std::string filename = fileName<T>(nodecount,concounts)+".csv";
     /*std::ofstream file;
     file.open (filename,std::ofstream::out | std::ofstream::trunc);
     file.close();
@@ -94,10 +120,7 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
     // finally
     //file.close();
 
-    std::ofstream ph_log,pr_log;
-    ph_log.open("phaselog_"+filename,std::ios::app);
-    net.writePhaseProtocol(ph_log);
-    ph_log.close();
+    std::ofstream pr_log;
 
     pr_log.open("progress_"+filename,std::ios::app);
     net.writeProgressProtocol(pr_log);
@@ -115,8 +138,8 @@ std::tuple<uint64_t,uint64_t> runExperiment(uint32_t nodecount, std::vector<node
 
 template<>
 std::tuple<uint64_t,uint64_t> runExperiment<experiments::node3pp>(uint32_t nodecount, std::vector<nodeid> starter, std::vector<uint32_t> concounts) {
-    const std::string filename = std::to_string(nodecount)+"_k-"+std::to_string(concounts[0])+(concounts.size()>1?"_"+std::to_string(concounts[1]):"")+"_"+protName<experiments::node3pp>()+".csv";
-    /*std::ofstream file;
+    const std::string filename = fileName<experiments::node3pp>(nodecount, concounts)+".csv";
+            /*std::ofstream file;
     file.open (filename,std::ofstream::out | std::ofstream::trunc);
     file.close();
     file.open(filename,std::ios::app);
