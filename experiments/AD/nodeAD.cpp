@@ -11,6 +11,7 @@ namespace experiments {
 
     // static initializer
     uint32_t nodeAD::d = 3;
+    uint32_t nodeAD::D = 3;
 
     namespace helper {
         constexpr double p(const uint16_t s, const uint16_t h, const uint16_t d) {
@@ -92,7 +93,7 @@ namespace experiments {
                         std::uniform_real_distribution<double> U(0,1);
 
                         ad.step += 1;
-                        if(helper::p(ad.step-1,ad.h, D) <= U(gen)) {
+                        if(helper::p(ad.step-1, ad.h, D) <= U(gen)) {
                             for(auto& node: self.broadcast_connections){
                                 message m2(self.id, node.second.get().id, ad::messagetype::diffuse,diffusepayload);
                                 self.net.sendMessage(m2);
