@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
     std::vector<nodeid> starters;
     starters.push_back(dist(gen));
 
+    global_concount = concount;
     std::vector<uint32_t> concounts{concount};
 
     auto start = time(NULL);

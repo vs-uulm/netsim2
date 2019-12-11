@@ -92,7 +92,7 @@ namespace experiments {
                         std::uniform_real_distribution<double> U(0,1);
 
                         ad.step += 1;
-                        if(helper::p(ad.step-1,ad.h, d) <= U(gen)) {
+                        if(helper::p(ad.step-1,ad.h, D) <= U(gen)) {
                             for(auto& node: self.broadcast_connections){
                                 message m2(self.id, node.second.get().id, ad::messagetype::diffuse,diffusepayload);
                                 self.net.sendMessage(m2);

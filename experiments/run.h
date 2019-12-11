@@ -19,6 +19,7 @@
 uint32_t global_d = 5;
 uint32_t global_d_3pp = 5;
 uint32_t global_N_3pp = 5;
+uint32_t global_concount = 5;
 double global_p = 0.1;
 
 // if some protocol specific initialization is required, use this
@@ -27,6 +28,7 @@ void protInit() {}
 template<>
 void protInit<experiments::nodeAD>() {
     experiments::nodeAD::d = global_d;
+    experiments::nodeAD::D = global_concount;
 }
 template<>
 void protInit<experiments::nodedd>() {

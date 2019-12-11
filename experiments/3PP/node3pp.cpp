@@ -190,7 +190,7 @@ namespace experiments {
                         std::uniform_real_distribution<double> U(0, 1);
 
                         ad.step += 1;
-                        if (helper::p(ad.step - 1, ad.h, d) <=  U(gen)) {
+                        if (helper::p(ad.step - 1, ad.h, N) <=  U(gen)) {
                             for (auto &node: self.selected_n[diffusepayload]) {
                                 message m2(self.id, node.get().id, pp::messagetype::adaptive, diffusepayload);
                                 self.net.sendMessage(m2);

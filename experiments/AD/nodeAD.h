@@ -36,6 +36,7 @@ namespace experiments {
 
     public:
         static uint32_t d;
+        static uint32_t D;
 
         using node::node;
 
