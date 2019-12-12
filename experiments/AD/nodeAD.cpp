@@ -71,18 +71,22 @@ namespace experiments {
 
                 known_messages[diffusepayload] = this->id;
 
-                for(auto& node: broadcast_connections){
-                    if(node.second.get().id != m.from){
-                        message m2(this->id,node.second.get().id,ad::messagetype::diffuse, diffusepayload);
-                        net.sendMessage(m2);
-                    }
-                }
-
                 AD& ad = ad_stats[diffusepayload];
                 ad.h = ((m.payload & 0xFFFF000000000000) >> 48);
                 ad.step = (m.payload & 0x0000FFFF00000000) >> 32;
 
                 ad.h += 1;
+
+                for(auto& node: broadcast_connections){
+                    if(node.second.get().id != m.from){
+                        message m2(this->id,node.second.get().id,ad::messagetype::diffuse, diffusepayload);
+                        net.sendMessage(m2);
+                        if(ad.step+1 <= d)
+                            net.sendMessage(m2);
+                    }
+                }
+
+                ad.step += 2;
 
                 auto loop = [](auto& func, const message m, nodeAD& self) mutable ->void{
                     const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
@@ -123,8 +127,14 @@ namespace experiments {
     }
 
     void nodeAD::startProtocol() {
-        message m(this->id, this->id, ad::messagetype::vsource, 0);
-        known_messages[0] = this->id;
+        std::minstd_rand gen(std::random_device{}());
+        std::uniform_int_distribution<> dist(0,this->broadcast_connections.size()-1);
+        auto it = this->broadcast_connections.begin();
+        std::advance(it, dist(gen));
+
+        message m(this->id, it->second.get().id, ad::messagetype::vsource, 0x0001000100000000);
+        known_messages[0] = it->second.get().id;
+
         sim.addEventIn([&,m](){
             this->receiveMessage(m);
         },0);
