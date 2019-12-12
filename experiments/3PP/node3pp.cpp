@@ -188,6 +188,7 @@ namespace experiments {
                 }
 
                 ad.h += 1;
+                ad.step += 2;
 
                 auto loop = [](auto &func, const message m, node3pp &self) mutable -> void {
                     const auto diffusepayload = m.payload & 0x00000000FFFFFFFF;
