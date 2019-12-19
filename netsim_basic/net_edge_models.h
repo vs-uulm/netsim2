@@ -27,7 +27,7 @@ public:
     normalModel(double mu, double si) : dist(mu, si) {}
 
     double operator()() {
-        return std::min(double(dist(gen))+gamma, double(max));
+        return std::max(std::min(double(dist(gen)),double(max)), double(gamma));
     }
 };
 
